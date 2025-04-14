@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard de Gastos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Gastos por Categoría</h1>
+    <canvas id="grafica" width="400" height="200"></canvas>
+    <script>
+        const labels = {{ labels|safe }};
+        const data = {{ datos|safe }};
+        const ctx = document.getElementById('grafica').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Gastos ($)',
+                    data: data,
+                    backgroundColor: 'rgba(135,206,250,0.7)',
+                    borderColor: 'rgba(0,0,0,0.1)',
+                    borderWidth: 1
+                }]
+            }
+        });
+    </script>
+
+    <h2>Registrar Gasto</h2>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="nombre" placeholder="Descripción" required>
+        <input type="number" name="monto" step="0.01" placeholder="Cantidad" required>
+        <button type="submit">Agregar</button>
+    </form>
+
+    <h2>Historial de gastos</h2>
+    <ul>
+        {% for gasto in gastos %}
+        <li>
+            {{ gasto.fecha }} {{ gasto.nombre }}: ${{ gasto.monto }}
+            <form method="post" style="display:inline;">
+                {% csrf_token %}
+                <button name="eliminar" value="{{ gasto.id }}">Eliminar</button>
+            </form>
+        </li>
+        {% empty %}
+        <li>No hay gastos registrados.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
